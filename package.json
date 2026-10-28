@@ -1,0 +1,13 @@
+
+{
+  "name": "velune-bot",
+  "version": "1.0.0",
+  "description": "Velune Discord bot",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.19.3"
+  }
+}
