@@ -13,7 +13,7 @@ const {
 const fs = require("node:fs");
 const path = require("node:path");
 
-// ==================== إعدادات البوت ====================
+// ==================== SETTINGS ====================
 
 const token = process.env.DISCORD_TOKEN;
 const clientId = process.env.CLIENT_ID;
@@ -21,16 +21,15 @@ const guildId = process.env.GUILD_ID;
 
 if (!token || !clientId || !guildId) {
   throw new Error(
-    "Missing DISCORD_TOKEN, CLIENT_ID, or GUILD_ID in environment variables."
+    "Missing DISCORD_TOKEN, CLIENT_ID, or GUILD_ID."
   );
 }
 
 const BIRTHDAY_CHANNEL = "1521672147250970784";
 const BIRTHDAY_ROLE = "1555171582551531611";
-
 const DATA_FILE = path.join(__dirname, "valin-data.json");
 
-// ==================== حفظ البيانات ====================
+// ==================== DATA STORAGE ====================
 
 const blankData = () => ({
   birthdays: {},
@@ -44,12 +43,7 @@ const blankData = () => ({
 let data = blankData();
 
 function saveData() {
-  try {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-  } catch (error) {
-    console.error("Failed to save data:", error);
-    throw error;
-  }
+  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
 }
 
 function loadData() {
@@ -69,17 +63,15 @@ function loadData() {
       };
     }
   } catch (error) {
-    console.error("Failed to load saved data:", error);
+    console.error("Data loading error:", error);
   }
 }
-
-// ==================== صلاحيات الأوامر ====================
 
 function admin(command, permission = PermissionFlagsBits.ManageGuild) {
   return command.setDefaultMemberPermissions(permission);
 }
 
-// ==================== قائمة الأوامر ====================
+// ==================== SLASH COMMANDS ====================
 
 const commands = [
   new SlashCommandBuilder()
@@ -94,14 +86,11 @@ const commands = [
     new SlashCommandBuilder()
       .setName("kick")
       .setDescription("Kick a member")
-      .addUserOption(option =>
-        option.setName("member")
-          .setDescription("Member to kick")
-          .setRequired(true)
+      .addUserOption(o =>
+        o.setName("member").setDescription("Member").setRequired(true)
       )
-      .addStringOption(option =>
-        option.setName("reason")
-          .setDescription("Reason for the kick")
+      .addStringOption(o =>
+        o.setName("reason").setDescription("Reason")
       ),
     PermissionFlagsBits.KickMembers
   ),
@@ -110,14 +99,11 @@ const commands = [
     new SlashCommandBuilder()
       .setName("ban")
       .setDescription("Ban a member")
-      .addUserOption(option =>
-        option.setName("member")
-          .setDescription("Member to ban")
-          .setRequired(true)
+      .addUserOption(o =>
+        o.setName("member").setDescription("Member").setRequired(true)
       )
-      .addStringOption(option =>
-        option.setName("reason")
-          .setDescription("Reason for the ban")
+      .addStringOption(o =>
+        o.setName("reason").setDescription("Reason")
       ),
     PermissionFlagsBits.BanMembers
   ),
@@ -126,21 +112,18 @@ const commands = [
     new SlashCommandBuilder()
       .setName("timeout")
       .setDescription("Timeout a member")
-      .addUserOption(option =>
-        option.setName("member")
-          .setDescription("Member to timeout")
-          .setRequired(true)
+      .addUserOption(o =>
+        o.setName("member").setDescription("Member").setRequired(true)
       )
-      .addIntegerOption(option =>
-        option.setName("minutes")
-          .setDescription("Duration in minutes, 1-40320")
+      .addIntegerOption(o =>
+        o.setName("minutes")
+          .setDescription("Duration in minutes")
           .setMinValue(1)
           .setMaxValue(40320)
           .setRequired(true)
       )
-      .addStringOption(option =>
-        option.setName("reason")
-          .setDescription("Reason for timeout")
+      .addStringOption(o =>
+        o.setName("reason").setDescription("Reason")
       ),
     PermissionFlagsBits.ModerateMembers
   ),
@@ -149,15 +132,11 @@ const commands = [
     new SlashCommandBuilder()
       .setName("warn")
       .setDescription("Warn a member")
-      .addUserOption(option =>
-        option.setName("member")
-          .setDescription("Member to warn")
-          .setRequired(true)
+      .addUserOption(o =>
+        o.setName("member").setDescription("Member").setRequired(true)
       )
-      .addStringOption(option =>
-        option.setName("reason")
-          .setDescription("Warning reason")
-          .setRequired(true)
+      .addStringOption(o =>
+        o.setName("reason").setDescription("Reason").setRequired(true)
       ),
     PermissionFlagsBits.ModerateMembers
   ),
@@ -166,8 +145,8 @@ const commands = [
     new SlashCommandBuilder()
       .setName("clear")
       .setDescription("Delete recent messages")
-      .addIntegerOption(option =>
-        option.setName("amount")
+      .addIntegerOption(o =>
+        o.setName("amount")
           .setDescription("Number of messages, 1-100")
           .setMinValue(1)
           .setMaxValue(100)
@@ -179,14 +158,12 @@ const commands = [
   admin(
     new SlashCommandBuilder()
       .setName("clearuser")
-      .setDescription("Delete recent messages from one member")
-      .addUserOption(option =>
-        option.setName("member")
-          .setDescription("Member whose messages to delete")
-          .setRequired(true)
+      .setDescription("Delete messages from one member")
+      .addUserOption(o =>
+        o.setName("member").setDescription("Member").setRequired(true)
       )
-      .addIntegerOption(option =>
-        option.setName("amount")
+      .addIntegerOption(o =>
+        o.setName("amount")
           .setDescription("Maximum number to check, 1-100")
           .setMinValue(1)
           .setMaxValue(100)
@@ -198,9 +175,9 @@ const commands = [
   admin(
     new SlashCommandBuilder()
       .setName("clearbots")
-      .setDescription("Delete recent messages sent by bots")
-      .addIntegerOption(option =>
-        option.setName("amount")
+      .setDescription("Delete recent bot messages")
+      .addIntegerOption(o =>
+        o.setName("amount")
           .setDescription("Maximum number to check, 1-100")
           .setMinValue(1)
           .setMaxValue(100)
@@ -212,92 +189,73 @@ const commands = [
   admin(
     new SlashCommandBuilder()
       .setName("dm")
-      .setDescription("Send a direct message to a member")
-      .addUserOption(option =>
-        option.setName("member")
-          .setDescription("Message recipient")
-          .setRequired(true)
+      .setDescription("Send a direct message")
+      .addUserOption(o =>
+        o.setName("member").setDescription("Recipient").setRequired(true)
       )
-      .addStringOption(option =>
-        option.setName("message")
-          .setDescription("Message content")
-          .setRequired(true)
+      .addStringOption(o =>
+        o.setName("message").setDescription("Message").setRequired(true)
       )
   ),
 
   admin(
     new SlashCommandBuilder()
       .setName("birthday")
-      .setDescription("Manage member birthdays")
-      .addSubcommand(sub =>
-        sub.setName("add")
-          .setDescription("Register a birthday")
-          .addUserOption(option =>
-            option.setName("member")
-              .setDescription("Member")
-              .setRequired(true)
+      .setDescription("Manage birthdays")
+      .addSubcommand(s =>
+        s.setName("add")
+          .setDescription("Add birthday")
+          .addUserOption(o =>
+            o.setName("member").setDescription("Member").setRequired(true)
           )
-          .addStringOption(option =>
-            option.setName("date")
-              .setDescription("Date in DD/MM format, e.g. 20/01")
-              .setRequired(true)
-          )
-      )
-      .addSubcommand(sub =>
-        sub.setName("remove")
-          .setDescription("Remove a registered birthday")
-          .addUserOption(option =>
-            option.setName("member")
-              .setDescription("Member")
+          .addStringOption(o =>
+            o.setName("date")
+              .setDescription("DD/MM, e.g. 20/01")
               .setRequired(true)
           )
       )
-      .addSubcommand(sub =>
-        sub.setName("list")
-          .setDescription("List registered birthdays")
+      .addSubcommand(s =>
+        s.setName("remove")
+          .setDescription("Remove birthday")
+          .addUserOption(o =>
+            o.setName("member").setDescription("Member").setRequired(true)
+          )
+      )
+      .addSubcommand(s =>
+        s.setName("list").setDescription("List birthdays")
       )
   ),
 
   admin(
     new SlashCommandBuilder()
       .setName("addreply")
-      .setDescription("Create an automatic reply")
-      .addStringOption(option =>
-        option.setName("trigger")
-          .setDescription("Word or phrase that triggers the reply")
-          .setRequired(true)
+      .setDescription("Add automatic reply")
+      .addStringOption(o =>
+        o.setName("trigger").setDescription("Trigger phrase").setRequired(true)
       )
-      .addStringOption(option =>
-        option.setName("response")
-          .setDescription("Bot response")
-          .setRequired(true)
+      .addStringOption(o =>
+        o.setName("response").setDescription("Reply text").setRequired(true)
       )
   ),
 
   admin(
     new SlashCommandBuilder()
       .setName("editreply")
-      .setDescription("Edit an automatic reply")
-      .addStringOption(option =>
-        option.setName("trigger")
-          .setDescription("Existing trigger phrase")
-          .setRequired(true)
+      .setDescription("Edit automatic reply")
+      .addStringOption(o =>
+        o.setName("trigger").setDescription("Existing trigger").setRequired(true)
       )
-      .addStringOption(option =>
-        option.setName("response")
-          .setDescription("New bot response")
-          .setRequired(true)
+      .addStringOption(o =>
+        o.setName("response").setDescription("New reply").setRequired(true)
       )
   ),
 
   admin(
     new SlashCommandBuilder()
       .setName("delreply")
-      .setDescription("Delete an automatic reply")
-      .addStringOption(option =>
-        option.setName("trigger")
-          .setDescription("Trigger phrase to delete")
-          .setRequired(true)
+      .setDescription("Delete automatic reply")
+      .addStringOption(o =>
+        o.setName("trigger").setDescription("Trigger to delete").setRequired(true)
       )
   ),
 
@@ -310,10 +268,10 @@ const commands = [
   admin(
     new SlashCommandBuilder()
       .setName("replymode")
-      .setDescription("Choose automatic reply matching mode")
-      .addStringOption(option =>
-        option.setName("mode")
-          .setDescription("How the trigger should match")
+      .setDescription("Choose reply matching mode")
+      .addStringOption(o =>
+        o.setName("mode")
+          .setDescription("Matching mode")
           .setRequired(true)
           .addChoices(
             { name: "Exact phrase", value: "exact" },
@@ -325,27 +283,25 @@ const commands = [
   admin(
     new SlashCommandBuilder()
       .setName("schedule")
-      .setDescription("Schedule a message for a future time")
-      .addChannelOption(option =>
-        option.setName("channel")
-          .setDescription("Destination text channel")
+      .setDescription("Schedule a future message")
+      .addChannelOption(o =>
+        o.setName("channel")
+          .setDescription("Text channel")
           .addChannelTypes(ChannelType.GuildText)
           .setRequired(true)
       )
-      .addStringOption(option =>
-        option.setName("datetime")
-          .setDescription("Date/time with timezone, e.g. 2026-12-31T20:00:00+03:00")
+      .addStringOption(o =>
+        o.setName("datetime")
+          .setDescription("ISO date with timezone")
           .setRequired(true)
       )
-      .addStringOption(option =>
-        option.setName("message")
-          .setDescription("Message to send")
-          .setRequired(true)
+      .addStringOption(o =>
+        o.setName("message").setDescription("Message").setRequired(true)
       )
   )
 ].map(command => command.toJSON());
 
-// ==================== تشغيل العميل ====================
+// ==================== DISCORD CLIENT ====================
 
 const client = new Client({
   intents: [
@@ -355,7 +311,7 @@ const client = new Client({
   ]
 });
 
-// ==================== الوقت السعودي ====================
+// ==================== SAUDI DATE ====================
 
 function riyadhDate() {
   return new Intl.DateTimeFormat("en-GB", {
@@ -366,7 +322,7 @@ function riyadhDate() {
   }).format(new Date());
 }
 
-// ==================== أعياد الميلاد والرسائل المجدولة ====================
+// ==================== BIRTHDAYS ====================
 
 async function checkBirthdays() {
   const today = riyadhDate();
@@ -379,7 +335,7 @@ async function checkBirthdays() {
     .catch(() => null);
 
   if (!channel || !channel.isTextBased()) {
-    console.error("Birthday channel unavailable. Will retry.");
+    console.error("Birthday channel unavailable; retrying later.");
     return;
   }
 
@@ -401,9 +357,11 @@ async function checkBirthdays() {
     data.lastBirthdayDate = today;
     saveData();
   } catch (error) {
-    console.error("Birthday message failed; will retry:", error);
+    console.error("Birthday error:", error);
   }
 }
+
+// ==================== SCHEDULED MESSAGES ====================
 
 async function checkSchedules() {
   for (const item of data.schedules) {
@@ -414,7 +372,7 @@ async function checkSchedules() {
       .catch(() => null);
 
     if (!channel || !channel.isTextBased()) {
-      console.error("Scheduled message channel unavailable:", item.channelId);
+      console.error("Scheduled channel unavailable:", item.channelId);
       continue;
     }
 
@@ -427,7 +385,7 @@ async function checkSchedules() {
       item.sent = true;
       saveData();
     } catch (error) {
-      console.error("Scheduled message failed; will retry:", error);
+      console.error("Schedule error:", error);
     }
   }
 }
@@ -437,7 +395,7 @@ async function checkReminders() {
   await checkSchedules();
 }
 
-// ==================== تشغيل البوت وتسجيل الأوامر ====================
+// ==================== REGISTER COMMANDS ====================
 
 client.once("ready", async () => {
   console.log(`Valin is online as ${client.user.tag}`);
@@ -445,12 +403,22 @@ client.once("ready", async () => {
   try {
     const rest = new REST({ version: "10" }).setToken(token);
 
-    await rest.put(
+    console.log("Commands count:", commands.length);
+    console.log(
+      "Commands:",
+      commands.map(command => command.name).join(", ")
+    );
+
+    const result = await rest.put(
       Routes.applicationGuildCommands(clientId, guildId),
       { body: commands }
     );
 
-    console.log("Slash commands registered successfully.");
+    console.log("Slash commands registered:", result.length);
+    console.log(
+      "Registered names:",
+      result.map(command => command.name).join(", ")
+    );
   } catch (error) {
     console.error("Command registration failed:", error);
   }
@@ -458,13 +426,13 @@ client.once("ready", async () => {
   await checkReminders();
 
   setInterval(() => {
-    checkReminders().catch(error => {
-      console.error("Reminder check failed:", error);
-    });
+    checkReminders().catch(error =>
+      console.error("Reminder check error:", error)
+    );
   }, 30_000);
 });
 
-// ==================== الردود التلقائية ====================
+// ==================== AUTOMATIC REPLIES ====================
 
 client.on("messageCreate", async message => {
   if (!message.guild || message.author.bot || !message.content) return;
@@ -483,15 +451,13 @@ client.on("messageCreate", async message => {
     await message.reply({
       content: response,
       allowedMentions: { parse: [] }
-    }).catch(error => {
-      console.error("Automatic reply failed:", error);
-    });
+    }).catch(error => console.error("Auto-reply error:", error));
 
     break;
   }
 });
 
-// ==================== التفاعلات والأوامر ====================
+// ==================== COMMAND HANDLER ====================
 
 client.on("interactionCreate", async interaction => {
   if (!interaction.isChatInputCommand()) return;
@@ -506,44 +472,21 @@ client.on("interactionCreate", async interaction => {
     });
 
   try {
-    // ---------- Ping ----------
-
     if (name === "ping") {
       return reply("Pong! بوت ڤالين يعمل بنجاح 🌙");
     }
 
-    // ---------- Help ----------
-
     if (name === "help") {
       return reply(
         "**أوامر بوت ڤالين 🌙**\n\n" +
-        "**الإدارة:**\n" +
-        "`/kick` — إخراج عضو\n" +
-        "`/ban` — حظر عضو\n" +
-        "`/timeout` — تقييد عضو مؤقتًا\n" +
-        "`/warn` — تحذير عضو\n\n" +
-        "**حذف الرسائل:**\n" +
-        "`/clear` — حذف رسائل حديثة\n" +
-        "`/clearuser` — حذف رسائل عضو\n" +
-        "`/clearbots` — حذف رسائل البوتات\n\n" +
-        "**الرسائل:**\n" +
-        "`/dm` — إرسال رسالة خاصة\n" +
-        "`/schedule` — جدولة رسالة\n\n" +
-        "**أعياد الميلاد:**\n" +
-        "`/birthday add` — إضافة تاريخ\n" +
-        "`/birthday remove` — حذف تاريخ\n" +
-        "`/birthday list` — عرض التواريخ\n\n" +
-        "**الردود التلقائية:**\n" +
-        "`/addreply` — إضافة رد\n" +
-        "`/editreply` — تعديل رد\n" +
-        "`/delreply` — حذف رد\n" +
-        "`/listreplies` — عرض الردود\n" +
-        "`/replymode` — تحديد طريقة المطابقة\n\n" +
-        "`/ping` و`/help`"
+        "**الإدارة:** `/kick` `/ban` `/timeout` `/warn`\n" +
+        "**الحذف:** `/clear` `/clearuser` `/clearbots`\n" +
+        "**الرسائل:** `/dm` `/schedule`\n" +
+        "**أعياد الميلاد:** `/birthday add` `/birthday remove` `/birthday list`\n" +
+        "**الردود التلقائية:** `/addreply` `/editreply` `/delreply` `/listreplies` `/replymode`\n" +
+        "**عام:** `/ping` `/help`"
       );
     }
-
-    // ---------- Kick / Ban / Timeout ----------
 
     if (["kick", "ban", "timeout"].includes(name)) {
       const user = interaction.options.getUser("member");
@@ -552,21 +495,17 @@ client.on("interactionCreate", async interaction => {
         .catch(() => null);
 
       const reason =
-        interaction.options.getString("reason") || "لم يُحدَّد سبب";
+        interaction.options.getString("reason") || "No reason provided";
 
-      if (!member) {
-        return reply("ما قدرت أجد العضو داخل السيرفر.");
-      }
+      if (!member) return reply("لم أجد العضو في السيرفر.");
 
-      if (!member.manageable) {
-        return reply(
-          "ما أقدر أطبق الإجراء. تأكدي من ترتيب رتبة البوت وصلاحياته."
-        );
+      if (name !== "ban" && !member.manageable) {
+        return reply("لا أستطيع إدارة هذا العضو بسبب ترتيب الرتب.");
       }
 
       if (name === "kick") {
         await member.kick(reason);
-        return reply(`تم إخراج ${user.tag} من السيرفر.`);
+        return reply(`تم إخراج ${user.tag}.`);
       }
 
       if (name === "ban") {
@@ -575,22 +514,15 @@ client.on("interactionCreate", async interaction => {
       }
 
       const minutes = interaction.options.getInteger("minutes");
-
       await member.timeout(minutes * 60_000, reason);
-
-      return reply(
-        `تم تقييد ${user.tag} لمدة ${minutes} دقيقة.`
-      );
+      return reply(`تم تقييد ${user.tag} لمدة ${minutes} دقيقة.`);
     }
-
-    // ---------- Warn ----------
 
     if (name === "warn") {
       const user = interaction.options.getUser("member");
       const reason = interaction.options.getString("reason");
 
       data.warnings[user.id] ??= [];
-
       data.warnings[user.id].push({
         reason,
         moderator: interaction.user.id,
@@ -599,57 +531,39 @@ client.on("interactionCreate", async interaction => {
 
       saveData();
 
-      const dmSent = await user.send(
-        `⚠️ لديك تحذير من سيرفر ڤالين.\nالسبب: ${reason}`
+      const sent = await user.send(
+        `⚠️ تحذير من سيرفر ڤالين.\nالسبب: ${reason}`
       ).then(() => true).catch(() => false);
 
       return reply(
-        `تم تسجيل التحذير على ${user.tag}.` +
-        (dmSent
-          ? " وأُرسلت له رسالة خاصة."
-          : " تعذّر إرسال الخاص؛ قد تكون رسائله الخاصة مغلقة.")
+        `تم تسجيل التحذير لـ ${user.tag}.` +
+        (sent ? " أُرسلت رسالة خاصة." : " لم أستطع إرسال رسالة خاصة.")
       );
     }
-
-    // ---------- Clear messages ----------
 
     if (name === "clear") {
-      if (!interaction.channel?.isTextBased()) {
-        return reply("هذا الأمر يعمل داخل القنوات النصية فقط.");
+      if (!interaction.channel?.isTextBased() ||
+          !interaction.channel.bulkDelete) {
+        return reply("استخدمي الأمر في قناة نصية.");
       }
 
       const amount = interaction.options.getInteger("amount");
+      const deleted = await interaction.channel.bulkDelete(amount, true);
 
-      const deleted = await interaction.channel.bulkDelete(
-        amount,
-        true
-      );
-
-      return reply(
-        `تم حذف ${deleted.size} رسالة. ` +
-        "لا يمكن حذف الرسائل الأقدم من 14 يومًا بهذه الطريقة."
-      );
+      return reply(`تم حذف ${deleted.size} رسالة. الرسائل الأقدم من 14 يومًا لا تُحذف بهذه الطريقة.`);
     }
 
-    // ---------- Clear user / bots ----------
-
     if (name === "clearuser" || name === "clearbots") {
-      if (
-        !interaction.channel?.isTextBased() ||
-        !interaction.channel.messages
-      ) {
-        return reply("هذا الأمر يعمل داخل القنوات النصية فقط.");
+      if (!interaction.channel?.messages) {
+        return reply("استخدمي الأمر في قناة نصية.");
       }
 
       const amount = interaction.options.getInteger("amount");
-
       const user = name === "clearuser"
         ? interaction.options.getUser("member")
         : null;
 
-      const fetched = await interaction.channel.messages.fetch({
-        limit: 100
-      });
+      const fetched = await interaction.channel.messages.fetch({ limit: 100 });
 
       const selected = fetched.filter(message =>
         name === "clearuser"
@@ -665,13 +579,8 @@ client.on("interactionCreate", async interaction => {
         ? await interaction.channel.bulkDelete(messages, true)
         : messages;
 
-      return reply(
-        `تم حذف ${deleted.size} رسالة مطابقة. ` +
-        "الرسائل الأقدم من 14 يومًا لا يمكن حذفها بهذه الطريقة."
-      );
+      return reply(`تم حذف ${deleted.size} رسالة مطابقة. الرسائل الأقدم من 14 يومًا لا تُحذف بهذه الطريقة.`);
     }
-
-    // ---------- Direct message ----------
 
     if (name === "dm") {
       const user = interaction.options.getUser("member");
@@ -682,10 +591,8 @@ client.on("interactionCreate", async interaction => {
         allowedMentions: { parse: [] }
       });
 
-      return reply(`تم إرسال الرسالة الخاصة إلى ${user.tag}.`);
+      return reply(`تم إرسال الرسالة إلى ${user.tag}.`);
     }
-
-    // ---------- Birthday management ----------
 
     if (name === "birthday") {
       const sub = interaction.options.getSubcommand();
@@ -694,35 +601,26 @@ client.on("interactionCreate", async interaction => {
         const user = interaction.options.getUser("member");
         const date = interaction.options.getString("date").trim();
 
-        const validFormat =
-          /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])$/.test(date);
-
-        if (!validFormat) {
-          return reply(
-            "اكتبي التاريخ بصيغة DD/MM، مثل `20/01`."
-          );
+        if (!/^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])$/.test(date)) {
+          return reply("اكتبي التاريخ بصيغة DD/MM، مثل 20/01.");
         }
 
         const [day, month] = date.split("/").map(Number);
-        const daysInMonth = new Date(2000, month, 0).getDate();
-
-        if (day > daysInMonth) {
+        if (day > new Date(2000, month, 0).getDate()) {
           return reply("هذا التاريخ غير صحيح.");
         }
 
         data.birthdays[user.id] = { date };
         saveData();
 
-        return reply(
-          `تم حفظ عيد ميلاد ${user.tag} بتاريخ ${date} 🎂`
-        );
+        return reply(`تم حفظ عيد ميلاد ${user.tag} بتاريخ ${date} 🎂`);
       }
 
       if (sub === "remove") {
         const user = interaction.options.getUser("member");
 
         if (!data.birthdays[user.id]) {
-          return reply("ما فيه عيد ميلاد مسجل لهذا العضو.");
+          return reply("لا يوجد عيد ميلاد محفوظ لهذا العضو.");
         }
 
         delete data.birthdays[user.id];
@@ -731,98 +629,66 @@ client.on("interactionCreate", async interaction => {
         return reply(`تم حذف عيد ميلاد ${user.tag}.`);
       }
 
-      if (sub === "list") {
-        const entries = Object.entries(data.birthdays);
+      const entries = Object.entries(data.birthdays);
 
-        if (!entries.length) {
-          return reply("ما فيه أعياد ميلاد مسجلة حاليًا.");
-        }
-
-        const list = entries.map(([id, info]) =>
-          `<@${id}> — ${info.date}`
-        ).join("\n");
-
-        return reply(
-          list.length > 1900
-            ? list.slice(0, 1850) + "\n... القائمة طويلة."
-            : list
-        );
+      if (!entries.length) {
+        return reply("لا توجد أعياد ميلاد مسجلة.");
       }
-    }
 
-    // ---------- Add / edit automatic reply ----------
+      const list = entries.map(([id, info]) =>
+        `<@${id}> — ${info.date}`
+      ).join("\n");
+
+      return reply(list.length > 1900 ? list.slice(0, 1850) : list);
+    }
 
     if (name === "addreply" || name === "editreply") {
       const trigger = interaction.options
-        .getString("trigger")
-        .trim()
-        .toLowerCase();
+        .getString("trigger").trim().toLowerCase();
 
       const response = interaction.options.getString("response").trim();
 
       if (!trigger || !response) {
-        return reply("اكتبي كلمة الرد والرسالة بشكل صحيح.");
+        return reply("اكتبي كلمة الرد ونص الرد.");
       }
 
       if (name === "editreply" && !data.replies[trigger]) {
-        return reply("ما لقيت هذا الرد. تأكدي من كتابة الكلمة نفسها.");
+        return reply("لم أجد هذا الرد.");
       }
 
       if (name === "addreply" && data.replies[trigger]) {
-        return reply(
-          "هذا الرد موجود مسبقًا. استخدمي `/editreply` لتعديله."
-        );
+        return reply("هذا الرد موجود مسبقًا. استخدمي /editreply.");
       }
 
       data.replies[trigger] = response;
       saveData();
 
-      return reply(
-        name === "addreply"
-          ? `تمت إضافة الرد التلقائي للكلمة: ${trigger}`
-          : `تم تعديل الرد الخاص بالكلمة: ${trigger}`
-      );
+      return reply(name === "addreply" ? "تمت إضافة الرد." : "تم تعديل الرد.");
     }
-
-    // ---------- Delete automatic reply ----------
 
     if (name === "delreply") {
       const trigger = interaction.options
-        .getString("trigger")
-        .trim()
-        .toLowerCase();
+        .getString("trigger").trim().toLowerCase();
 
-      if (!data.replies[trigger]) {
-        return reply("هذا الرد غير موجود.");
-      }
+      if (!data.replies[trigger]) return reply("الرد غير موجود.");
 
       delete data.replies[trigger];
       saveData();
 
-      return reply(`تم حذف الرد التلقائي: ${trigger}`);
+      return reply("تم حذف الرد.");
     }
-
-    // ---------- List automatic replies ----------
 
     if (name === "listreplies") {
       const entries = Object.entries(data.replies);
 
-      if (!entries.length) {
-        return reply("ما فيه ردود تلقائية محفوظة.");
-      }
+      if (!entries.length) return reply("لا توجد ردود محفوظة.");
 
       const list = entries.map(([trigger, response]) =>
         `**${trigger}** → ${response}`
       ).join("\n");
 
-      return reply(
-        list.length > 1900
-          ? list.slice(0, 1850) + "\n... القائمة طويلة."
-          : list
-      );
+      return reply(list.length > 1900 ? list.slice(0, 1850) : list);
     }
-
-    // ---------- Reply mode ----------
 
     if (name === "replymode") {
       data.replyMode = interaction.options.getString("mode");
@@ -830,32 +696,25 @@ client.on("interactionCreate", async interaction => {
 
       return reply(
         data.replyMode === "exact"
-          ? "تم اختيار المطابقة الكاملة: يجب أن تطابق الرسالة الكلمة أو العبارة."
-          : "تم اختيار مطابقة المحتوى: سيرد البوت إذا احتوت الرسالة على العبارة."
+          ? "تم اختيار المطابقة الكاملة."
+          : "تم اختيار مطابقة العبارة داخل الرسالة."
       );
     }
-
-    // ---------- Schedule message ----------
 
     if (name === "schedule") {
       const channel = interaction.options.getChannel("channel");
       const dateText = interaction.options.getString("datetime").trim();
       const message = interaction.options.getString("message");
 
-      const hasTimezone =
-        /(?:Z|[+-]\d{2}:\d{2})$/i.test(dateText);
-
       const timestamp = Date.parse(dateText);
+      const hasTimezone = /(?:Z|[+-]\d{2}:\d{2})$/i.test(dateText);
 
       if (!hasTimezone || !Number.isFinite(timestamp)) {
-        return reply(
-          "اكتبي تاريخًا ووقتًا مع المنطقة الزمنية، مثل:\n" +
-          "`2026-12-31T20:00:00+03:00`"
-        );
+        return reply("استخدمي صيغة مثل 2026-12-31T20:00:00+03:00.");
       }
 
       if (timestamp <= Date.now()) {
-        return reply("اختاري موعدًا في المستقبل.");
+        return reply("اختاري وقتًا في المستقبل.");
       }
 
       data.schedules.push({
@@ -867,33 +726,30 @@ client.on("interactionCreate", async interaction => {
 
       saveData();
 
-      return reply(
-        `تمت جدولة الرسالة في <#${channel.id}>.\n` +
-        `الموعد: ${dateText}`
-      );
+      return reply(`تمت جدولة الرسالة في <#${channel.id}>.`);
     }
   } catch (error) {
     console.error(`Error in /${name}:`, error);
 
-    const errorMessage =
-      "صار خطأ أثناء تنفيذ الأمر. تأكدي من صلاحيات البوت وترتيب رتبته.";
+    const message = "حدث خطأ. تحققي من صلاحيات البوت وإعدادات السيرفر.";
 
     if (interaction.replied || interaction.deferred) {
       return interaction.followUp({
-        content: errorMessage,
+        content: message,
         ephemeral: true,
         allowedMentions: { parse: [] }
       }).catch(() => {});
     }
 
-    return reply(errorMessage).catch(() => {});
+    return reply(message).catch(() => {});
   }
 });
 
-// ==================== بدء التشغيل ====================
+// ==================== START ====================
 
 loadData();
 
 client.login(token).catch(error => {
   console.error("Bot login failed:", error);
 });
+ 
