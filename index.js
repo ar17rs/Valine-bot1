@@ -67,7 +67,10 @@ function loadData() {
   }
 }
 
-function admin(command, permission = PermissionFlagsBits.ManageGuild) {
+function admin(
+  command,
+  permission = PermissionFlagsBits.ManageGuild
+) {
   return command.setDefaultMemberPermissions(permission);
 }
 
@@ -87,10 +90,13 @@ const commands = [
       .setName("kick")
       .setDescription("Kick a member")
       .addUserOption(o =>
-        o.setName("member").setDescription("Member").setRequired(true)
+        o.setName("member")
+          .setDescription("Member")
+          .setRequired(true)
       )
       .addStringOption(o =>
-        o.setName("reason").setDescription("Reason")
+        o.setName("reason")
+          .setDescription("Reason")
       ),
     PermissionFlagsBits.KickMembers
   ),
@@ -100,10 +106,13 @@ const commands = [
       .setName("ban")
       .setDescription("Ban a member")
       .addUserOption(o =>
-        o.setName("member").setDescription("Member").setRequired(true)
+        o.setName("member")
+          .setDescription("Member")
+          .setRequired(true)
       )
       .addStringOption(o =>
-        o.setName("reason").setDescription("Reason")
+        o.setName("reason")
+          .setDescription("Reason")
       ),
     PermissionFlagsBits.BanMembers
   ),
@@ -113,7 +122,9 @@ const commands = [
       .setName("timeout")
       .setDescription("Timeout a member")
       .addUserOption(o =>
-        o.setName("member").setDescription("Member").setRequired(true)
+        o.setName("member")
+          .setDescription("Member")
+          .setRequired(true)
       )
       .addIntegerOption(o =>
         o.setName("minutes")
@@ -123,7 +134,8 @@ const commands = [
           .setRequired(true)
       )
       .addStringOption(o =>
-        o.setName("reason").setDescription("Reason")
+        o.setName("reason")
+          .setDescription("Reason")
       ),
     PermissionFlagsBits.ModerateMembers
   ),
@@ -133,10 +145,14 @@ const commands = [
       .setName("warn")
       .setDescription("Warn a member")
       .addUserOption(o =>
-        o.setName("member").setDescription("Member").setRequired(true)
+        o.setName("member")
+          .setDescription("Member")
+          .setRequired(true)
       )
       .addStringOption(o =>
-        o.setName("reason").setDescription("Reason").setRequired(true)
+        o.setName("reason")
+          .setDescription("Reason")
+          .setRequired(true)
       ),
     PermissionFlagsBits.ModerateMembers
   ),
@@ -160,7 +176,9 @@ const commands = [
       .setName("clearuser")
       .setDescription("Delete messages from one member")
       .addUserOption(o =>
-        o.setName("member").setDescription("Member").setRequired(true)
+        o.setName("member")
+          .setDescription("Member")
+          .setRequired(true)
       )
       .addIntegerOption(o =>
         o.setName("amount")
@@ -191,10 +209,14 @@ const commands = [
       .setName("dm")
       .setDescription("Send a direct message")
       .addUserOption(o =>
-        o.setName("member").setDescription("Recipient").setRequired(true)
+        o.setName("member")
+          .setDescription("Recipient")
+          .setRequired(true)
       )
       .addStringOption(o =>
-        o.setName("message").setDescription("Message").setRequired(true)
+        o.setName("message")
+          .setDescription("Message")
+          .setRequired(true)
       )
   ),
 
@@ -206,7 +228,9 @@ const commands = [
         s.setName("add")
           .setDescription("Add birthday")
           .addUserOption(o =>
-            o.setName("member").setDescription("Member").setRequired(true)
+            o.setName("member")
+              .setDescription("Member")
+              .setRequired(true)
           )
           .addStringOption(o =>
             o.setName("date")
@@ -218,11 +242,14 @@ const commands = [
         s.setName("remove")
           .setDescription("Remove birthday")
           .addUserOption(o =>
-            o.setName("member").setDescription("Member").setRequired(true)
+            o.setName("member")
+              .setDescription("Member")
+              .setRequired(true)
           )
       )
       .addSubcommand(s =>
-        s.setName("list").setDescription("List birthdays")
+        s.setName("list")
+          .setDescription("List birthdays")
       )
   ),
 
@@ -231,10 +258,14 @@ const commands = [
       .setName("addreply")
       .setDescription("Add automatic reply")
       .addStringOption(o =>
-        o.setName("trigger").setDescription("Trigger phrase").setRequired(true)
+        o.setName("trigger")
+          .setDescription("Trigger phrase")
+          .setRequired(true)
       )
       .addStringOption(o =>
-        o.setName("response").setDescription("Reply text").setRequired(true)
+        o.setName("response")
+          .setDescription("Reply text")
+          .setRequired(true)
       )
   ),
 
@@ -243,10 +274,14 @@ const commands = [
       .setName("editreply")
       .setDescription("Edit automatic reply")
       .addStringOption(o =>
-        o.setName("trigger").setDescription("Existing trigger").setRequired(true)
+        o.setName("trigger")
+          .setDescription("Existing trigger")
+          .setRequired(true)
       )
       .addStringOption(o =>
-        o.setName("response").setDescription("New reply").setRequired(true)
+        o.setName("response")
+          .setDescription("New reply")
+          .setRequired(true)
       )
   ),
 
@@ -255,7 +290,9 @@ const commands = [
       .setName("delreply")
       .setDescription("Delete automatic reply")
       .addStringOption(o =>
-        o.setName("trigger").setDescription("Trigger to delete").setRequired(true)
+        o.setName("trigger")
+          .setDescription("Trigger to delete")
+          .setRequired(true)
       )
   ),
 
@@ -296,10 +333,21 @@ const commands = [
           .setRequired(true)
       )
       .addStringOption(o =>
-        o.setName("message").setDescription("Message").setRequired(true)
+        o.setName("message")
+          .setDescription("Message")
+          .setRequired(true)
       )
   )
 ].map(command => command.toJSON());
+
+// ==================== STARTUP DIAGNOSTICS ====================
+
+console.log("INDEX.JS UPDATED - VERSION 2");
+console.log("Commands count:", commands.length);
+console.log(
+  "Commands:",
+  commands.map(command => command.name).join(", ")
+);
 
 // ==================== DISCORD CLIENT ====================
 
@@ -403,11 +451,8 @@ client.once("ready", async () => {
   try {
     const rest = new REST({ version: "10" }).setToken(token);
 
-    console.log("Commands count:", commands.length);
-    console.log(
-      "Commands:",
-      commands.map(command => command.name).join(", ")
-    );
+    console.log("Registering commands for application:", clientId);
+    console.log("Registering commands for server:", guildId);
 
     const result = await rest.put(
       Routes.applicationGuildCommands(clientId, guildId),
@@ -550,7 +595,9 @@ client.on("interactionCreate", async interaction => {
       const amount = interaction.options.getInteger("amount");
       const deleted = await interaction.channel.bulkDelete(amount, true);
 
-      return reply(`تم حذف ${deleted.size} رسالة. الرسائل الأقدم من 14 يومًا لا تُحذف بهذه الطريقة.`);
+      return reply(
+        `تم حذف ${deleted.size} رسالة. الرسائل الأقدم من 14 يومًا لا تُحذف بهذه الطريقة.`
+      );
     }
 
     if (name === "clearuser" || name === "clearbots") {
@@ -579,7 +626,9 @@ client.on("interactionCreate", async interaction => {
         ? await interaction.channel.bulkDelete(messages, true)
         : messages;
 
-      return reply(`تم حذف ${deleted.size} رسالة مطابقة. الرسائل الأقدم من 14 يومًا لا تُحذف بهذه الطريقة.`);
+      return reply(
+        `تم حذف ${deleted.size} رسالة مطابقة. الرسائل الأقدم من 14 يومًا لا تُحذف بهذه الطريقة.`
+      );
     }
 
     if (name === "dm") {
@@ -663,7 +712,9 @@ client.on("interactionCreate", async interaction => {
       data.replies[trigger] = response;
       saveData();
 
-      return reply(name === "addreply" ? "تمت إضافة الرد." : "تم تعديل الرد.");
+      return reply(
+        name === "addreply" ? "تمت إضافة الرد." : "تم تعديل الرد."
+      );
     }
 
     if (name === "delreply") {
@@ -710,7 +761,9 @@ client.on("interactionCreate", async interaction => {
       const hasTimezone = /(?:Z|[+-]\d{2}:\d{2})$/i.test(dateText);
 
       if (!hasTimezone || !Number.isFinite(timestamp)) {
-        return reply("استخدمي صيغة مثل 2026-12-31T20:00:00+03:00.");
+        return reply(
+          "استخدمي صيغة مثل 2026-12-31T20:00:00+03:00."
+        );
       }
 
       if (timestamp <= Date.now()) {
@@ -731,7 +784,8 @@ client.on("interactionCreate", async interaction => {
   } catch (error) {
     console.error(`Error in /${name}:`, error);
 
-    const message = "حدث خطأ. تحققي من صلاحيات البوت وإعدادات السيرفر.";
+    const message =
+      "حدث خطأ. تحققي من صلاحيات البوت وإعدادات السيرفر.";
 
     if (interaction.replied || interaction.deferred) {
       return interaction.followUp({
@@ -752,4 +806,3 @@ loadData();
 client.login(token).catch(error => {
   console.error("Bot login failed:", error);
 });
- 
