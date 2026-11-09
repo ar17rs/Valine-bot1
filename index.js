@@ -12,6 +12,21 @@ const {
 
 const fs = require("node:fs");
 const path = require("node:path");
+const express = require("express");
+const app = express();
+
+app.use(express.json());
+
+app.get("/api/status", (req, res) => {
+  res.json({
+    online: client.isReady(),
+    bot: client.user?.tag || null
+  });
+});
+
+app.listen(process.env.PORT || 3000, () => {
+  console.log("Valine API is running");
+});
 
 // ==================== SETTINGS ====================
 
