@@ -815,6 +815,10 @@ client.on("interactionCreate", async interaction => {
 
 loadData();
 
+app.listen(process.env.PORT || 3000, () => {
+  console.log("Valine API is running");
+});
+
 client.login(token).catch(error => {
   console.error("Bot login failed:", error);
 });
